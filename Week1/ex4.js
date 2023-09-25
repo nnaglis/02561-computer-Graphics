@@ -1,4 +1,6 @@
 var gl;
+var theta;
+var thetaLoc;
 
 window.onload = function init() {
 
@@ -10,9 +12,12 @@ window.onload = function init() {
     // Generate points
     //
     points = [];
-    points.push(vec2(0, 0));
-    points.push(vec2(1, 1));
-    points.push(vec2(1, 0));
+    points.push(vec2(0, 0.5));
+    points.push(vec2(-0.5, 0));
+    points.push(vec2(0.5, 0));
+    points.push(vec2(0, -0.5));
+
+    
 
 
     ///
@@ -20,8 +25,9 @@ window.onload = function init() {
     ///
     var pointColors = [];
     pointColors.push(vec4(1.0, 0.0, 0.0));
-    pointColors.push(vec4(0.0, 0.0, 1.0));
     pointColors.push(vec4(0.0, 1.0, 0.0));
+    pointColors.push(vec4(0.0, 0.0, 1.0));
+    pointColors.push(vec4(1.0, 1.0, 0.0));
 
 
     //
@@ -34,6 +40,15 @@ window.onload = function init() {
 
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
+
+
+    ///
+    /// Rotation and centering
+    ///
+    theta = 0.0;
+
+    thetaLoc = gl.getUniformLocation(program, "theta");
+    gl.uniform1f(thetaLoc, theta);
 
     // Load the data into the GPU
 
@@ -63,8 +78,11 @@ window.onload = function init() {
 
 
 function render() {
+    theta += 0.02;
+    gl.uniform1f(thetaLoc, theta);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, points.length);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, points.length);
+    requestAnimFrame(render);
 }
 
 
