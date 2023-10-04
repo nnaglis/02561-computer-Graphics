@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+    precision mediump float;
+
+    attribute vec4 vPosition;
+    attribute vec4 vColor;
+    attribute float vPointSize;
+    varying vec4 fColor;
+
+    void main() {
+        gl_PointSize = vPointSize;
+        fColor = vColor;
+        gl_Position = vPosition;
+    }
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec4 fColor;
+
+    void main() {
+        gl_FragColor = fColor;
+    }
+</script>
+
+<script type="text/javascript" src="../common/webgl-utils.js"></script>
+<script type="text/javascript" src="../common/initShaders.js"></script>
+<script type="text/javascript" src="../common/MV.js"></script>
+<script type="text/javascript" src="part3.js"></script>
+
+    
+<body>
+    <div>
+        <button  id="pointsButton">Points</button>
+        <button  id="trianglesButton">Triangles</button>
+    </div>
+    <canvas id="canvas" width="512" height="512">
+      Sorry, web browser does not support HTML5 canvas element   
+    </canvas>
+    <select id="colors" size="7">
+        <option value="0">Black</option>
+        <option value="1">White</option>
+        <option value="2">Yellow</option>
+        <option value="3">Green</option>
+        <option value="4">Blue</option>
+        <option value="5">Red</option>
+        <option value="6">Purple</option>
+    </select>
+    <button id="clearButton">Clear Canvas</button>
+    
+</body>
+
