@@ -1,0 +1,14 @@
+
+
+    In part 1 following transformations were used:
+        Projection transformation (camera to clip space) 
+        Camera transformation(camera position and rotation)
+    Resulting in the following CTM:
+        CTM = P * C
+
+    In part 2 following transformations were used:
+        Projection transformation (camera to clip space) -> ortho()
+        Camera transformation(camera position and rotation) -> lookAt()
+        Model transformation (cube position and rotation) -> translate() and applyRotation( translate() rotate() translate() )
+    Resulting in the following CTM:
+        CTM = P * C * M
