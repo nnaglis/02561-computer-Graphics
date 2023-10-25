@@ -10,15 +10,15 @@ var colors = [];
 
 var wire_indices;
 
-const at = vec3(0.5, 0.5, 0.5);
+const at = vec3(0.3, 0.4, 0.5);
 const up = vec3(0.0, 1.0, 0.0);
 
 var left = -1.0;
 var right = 1.0;
 var ytop = 1.0;
 var bottom = -1.0;
-var near = -1;
-var far = 2;
+var near = 0.1;
+var far = 4;
 
 
 window.onload = function init()
@@ -60,7 +60,7 @@ window.onload = function init()
 
     
     // setting up eye to have isometric view
-    var eye = vec3(0.0, 0.0, 0.0);
+    var eye = vec3(2.0, 2.0, 2.0);
 
 
     var pMatrix = ortho(left, right, bottom, ytop, near, far);
