@@ -22,8 +22,8 @@ uniform float shininess;
 void main()
 {
     
-    float Kd = max( dot(-lightDirection, vNormal), 0.0 );
-    float Ks = pow( max(dot(-lightDirection, vNormal), 0.0), shininess );
+    float Kd = max( dot(lightDirection, vNormal), 0.0 );
+    float Ks = pow( max(dot(lightDirection, vNormal), 0.0), shininess );
 
     fColor = (ambientProduct + diffuseProduct * Kd + specularProduct * Ks) * vColor;
 

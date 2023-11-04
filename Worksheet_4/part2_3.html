@@ -19,7 +19,7 @@ attribute vec4 vNormal;
 
 void main()
 {
-    float Kd = max( dot(-lightDirection, vNormal), 0.0 );
+    float Kd = max( dot(lightDirection, vNormal), 0.0 );
     fColor = Kd*diffuseProduct*vColor;
     fColor.a = 1.0;
 
