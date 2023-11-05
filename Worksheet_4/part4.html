@@ -29,12 +29,8 @@ void main()
     // Calculate reflection vector
     vec3 H = normalize(lightDirection.xyz + eye);
 
-    float Ks = max(dot(N, H), 0.0);   
-    if (Ks == 0.0) {
-        Ks = 0.0;
-    } else {
-        Ks = pow(max(dot(N, H), 0.0), shininess);
-    }
+    float Ks = pow(max(dot(N, H), 0.0), shininess);
+
 
     fColor = (ambientProduct + diffuseProduct * Kd + specularProduct * Ks) * vColor;
 

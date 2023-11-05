@@ -18,7 +18,7 @@ attribute vec4 vNormal;
 
 
 
-varying vec3 N,L,E,R;
+varying vec3 N,L,E;
 
 
 void main()
@@ -26,12 +26,6 @@ void main()
     N= normalize((modelMatrix*vNormal).xyz);
     L = lightDirection.xyz;
     E = eye.xyz;
-    
-
-    R = 2.0 * dot(lightDirection.xyz, vNormal.xyz) * vNormal.xyz - lightDirection.xyz;
-    R = normalize(R);
-
-
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
     gl_Position = translationMatrix*gl_Position;
     fColor = vColor;
@@ -50,14 +44,10 @@ varying vec4 fColor;
 void
 main()
 {
+
     vec3 H = normalize(L + E);
     float Kd = max( dot(L, N), 0.0 );
-    float Ks = max(dot(N, H), 0.0);   
-    if (Ks == 0.0) {
-        Ks = 0.0;
-    } else {
-        Ks = pow(max(dot(N, H), 0.0), shininess);
-    }
+    float Ks = pow(max(dot(N, H), 0.0), shininess);
 
     gl_FragColor = (ambientProduct + diffuseProduct * Kd + specularProduct * Ks) * fColor;
     gl_FragColor.a = 1.0;
