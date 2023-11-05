@@ -86,7 +86,8 @@ window.onload = function init()
 
     
     // setting up eye 
-    var eye = vec3(-2.0, 2.0, -4.0);
+    var eye = vec3(-0.0, 0.0, -4.0);
+    gl.uniform3fv(gl.getUniformLocation(program, "eye"),flatten(normalize(eye)));
 
     // var pMatrix = ortho(left, right, bottom, ytop, near, far);
     var pMatrix = perspective(fovy, aspect, near, far);
@@ -263,7 +264,7 @@ function updateShine(value)
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    rotationAngle += 0.1;
+    rotationAngle += 0.03;
     var radius = 3.0;
     var eyeX = radius * Math.sin(rotationAngle);
     var eyeZ = radius * Math.cos(rotationAngle);

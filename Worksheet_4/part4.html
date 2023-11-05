@@ -15,23 +15,32 @@ uniform vec4 lightDirection;
 attribute vec4 vNormal;
 
 uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform vec3 eye;
 uniform float shininess;
 
 
 
 void main()
 {
-    
-    float Kd = max( dot(lightDirection, vNormal), 0.0 );
-    float Ks = pow( max(dot(lightDirection, vNormal), 0.0), shininess );
+    // Calculate diffuse term
+    float Kd = max(dot(lightDirection.xyz, vNormal.xyz), 0.0);
+
+    // Calculate reflection vector
+    vec3 R = 2.0 * dot(lightDirection.xyz, vNormal.xyz) * vNormal.xyz - lightDirection.xyz;
+    R = normalize(R);
+
+    float Ks = max(dot(lightDirection, vNormal), 0.0);   
+    if (Ks == 0.0) {
+        Ks = 0.0;
+    } else {
+        Ks = pow(max(dot(R, eye), 0.0), shininess);
+    }
 
     fColor = (ambientProduct + diffuseProduct * Kd + specularProduct * Ks) * vColor;
 
-    
-
-
-    gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
-    gl_Position = translationMatrix*gl_Position;
+    // Apply transformations
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vPosition;
+    gl_Position = translationMatrix * gl_Position;
 }
 </script>
 
@@ -91,7 +100,7 @@ Oops ... your browser doesn't support the HTML5 canvas element
     <div>
         <label for="variableSlider">Shininess (s)</label>
         <span id="variableValue">0.0</span>
-        <input type="range" id="variableSlider" min="0" max="10" value="5" step="0.5" oninput="updateShine(this.value)">
+        <input type="range" id="variableSlider" min="0.1" max="10.0" value="5" step="1" oninput="updateShine(this.value)">
         <span id="variableValue">10.0</span>
     </div>
     
