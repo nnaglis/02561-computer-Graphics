@@ -12,3 +12,5 @@
         Model transformation (cube position and rotation) -> translate() and applyRotation( translate() rotate() translate() )
     Resulting in the following CTM:
         CTM = P * C * M
+    and finally the resulting cube is transformed again so that it is not in the center of the screen:
+        CTM * T
