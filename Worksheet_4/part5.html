@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+
+varying vec4 fColor;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 translationMatrix;
+uniform mat4 modelMatrix;
+
+uniform vec4 lightDirection;
+uniform vec3 eye;
+attribute vec4 vNormal;
+
+
+
+varying vec3 N,L,E,R;
+
+
+void main()
+{
+    N= normalize((modelMatrix*vNormal).xyz);
+    L = lightDirection.xyz;
+    E = eye.xyz;
+    
+
+    R = 2.0 * dot(lightDirection.xyz, vNormal.xyz) * vNormal.xyz - lightDirection.xyz;
+    R = normalize(R);
+
+
+    gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
+    gl_Position = translationMatrix*gl_Position;
+    fColor = vColor;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform float shininess;
+varying vec3 N,L,E,R;
+varying vec4 fColor;
+
+void
+main()
+{
+    vec3 H = normalize(L + E);
+    float Kd = max( dot(L, N), 0.0 );
+    float Ks = max(dot(N, H), 0.0);   
+    if (Ks == 0.0) {
+        Ks = 0.0;
+    } else {
+        Ks = pow(max(dot(N, H), 0.0), shininess);
+    }
+
+    gl_FragColor = (ambientProduct + diffuseProduct * Kd + specularProduct * Ks) * fColor;
+    gl_FragColor.a = 1.0;
+
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="part5.js"></script>
+
+<body>
+    <div>
+        <button  id="incSubButton">Increase subdivision</button>
+        <button  id="decSubButton">Decrease subdivision</button>
+    </div>
+<canvas id="gl-canvas" width="512"" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<div>   
+    <label for="variableSlider">Emitted radience (L_e)</label>
+    <span id="variableValue">0.0</span>
+    <input type="range" id="variableSlider" min="0" max="2.0" value="1.0" step="0.1" oninput="updateLe(this.value)">
+    <span id="variableValue">2.0</span>
+
+    <div>
+        <label for="variableSlider">Ambient coefficient (k_a)</label>
+        <span id="variableValue">0.0</span>
+        <input type="range" id="variableSlider" min="0" max="1.0" value="0.5" step="0.1" oninput="updateKa(this.value)">
+        <span id="variableValue">1.0</span>
+    </div>
+    
+
+
+    <label for="variableSlider">Diffuse Coefficient(k_d)</label>
+    <span id="variableValue">0.0</span>
+    <input type="range" id="variableSlider" min="0" max="1.0" value="0.5" step="0.1" oninput="updateKd(this.value)">
+    <span id="variableValue">1.0</span>
+
+    <div>
+        <label for="variableSlider">Specular coefficient (k_s)</label>
+        <span id="variableValue">0.0</span>
+        <input type="range" id="variableSlider" min="0" max="1.0" value="0.5" step="0.1" oninput="updateKs(this.value)">
+        <span id="variableValue">1.0</span>
+    </div>
+
+    <div>
+        <label for="variableSlider">Shininess (s)</label>
+        <span id="variableValue">0.0</span>
+        <input type="range" id="variableSlider" min="1" max="1000" value="5" step="1" oninput="updateShine(this.value)">
+        <span id="variableValue">1000.0</span>
+    </div>
+    
+
+</div>
+
+
+
+<br/>
+
+</body>
+</html>

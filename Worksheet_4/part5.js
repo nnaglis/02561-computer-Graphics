@@ -86,8 +86,7 @@ window.onload = function init()
 
     
     // setting up eye 
-    var eye = vec3(-0.0, 0.0, -4.0);
-    gl.uniform3fv(gl.getUniformLocation(program, "eye"),flatten(normalize(eye)));
+    var eye = vec3(-2.0, 2.0, -4.0);
 
     // var pMatrix = ortho(left, right, bottom, ytop, near, far);
     var pMatrix = perspective(fovy, aspect, near, far);
