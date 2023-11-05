@@ -1,0 +1,50 @@
+a) Phong shading is more accurate when compared to Phong reflection model as instead of interpolating
+    the intensity values, it interpolates the normals producing more realistic highlights (less mach banding).
+
+b) In flat shading, the assigned color of the polygon is the same for all pixels in the polygon, resulting in a rather flat
+    and unrealistic appearance.
+        Pros:
+            - Simple calculation
+            - Fast
+            - Lesser use of resources
+        Cons:
+            - Noticable edges between polygons
+            - not smooth lighting 
+
+    Gouraud shading - instead of assigning the same color to all pixels in the polygon, the color is interpolated
+    between the vertices of the polygon. This results in a smoother appearance.
+        Pros:
+            - Smoother than flat shading
+            - Less mach banding
+        Cons:
+            - More complex calculation
+            - Slower
+            - More use of resources
+            - medium quality
+
+    Phong shading - instead of interpolating the color, the normal is interpolated between the vertices of the polygon.
+    This results in a smoother appearance.
+        Pros:
+            - Even smoother than Gouraud shading
+            - Less mach banding
+            - High realism
+        Cons:
+            - More complex calculation
+            - Slower
+            - More use of resources
+
+    Generally more realistic shading models are more computationally expensive, so might not make sense depending on
+    let's say the distance of the object from the camera.
+
+c) The difference between directional light and a point light is that the rays of directional light hit the object from the same 
+    direction regardlesss of the distance from the object, while the direction of the rays from a point light differ depending on the distance
+    from the light to the object as well as the position of the point light itself.
+
+d) Yes, (depending on the used coordinate space to compute the lighting) because eye position influences the specular highlights of the object as when using the Phong reflection model it is dependant on the 
+    reflection vector which is calculated using the eye position.
+
+e) Setting specular term to (0,0,0) removes the specular highlights from the object, making it more matte looking.    
+
+f) Increasining shininess of the object makes the specular highlight smaller but more intense, apearing shinier and more mirror-like.
+
+g) I computed the lighting in the camera space, as my reflection vector is calculated using the eye position, cauing the specular highlights to change depending on the camera position.
