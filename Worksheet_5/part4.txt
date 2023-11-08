@@ -1,0 +1,6 @@
+Explanation of surface normals calculation:
+    Surface normals are obtained by multiplying the inverse of the transpose of the modelview matrix by the normal vector of each vertex.
+    It is necessary to invert and transpose the modelview matrix to keep the normals perpendicular to the surface of the object when the object is scaled  non-uniformly.
+
+    it relates to surface smoothness because the normal vector is used to calculate the amount of light reflected off of the surface of the object. As it is done on a per
+    fragment basis, the normal vector is therefore interpolated, resulting in a smooth looking surface.

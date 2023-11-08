@@ -9,8 +9,7 @@ var pointsArray = [];
 var colors = [];
 var normalsArray = [];
 
-var lightDirection = vec4(0.0, 0.0, -1.0, 1.0);
-var lightEmittance = vec4(0.0, 0.0, 0.0, 1.0);
+var lightPosition = vec4(0.0, 0.0, -1.0, 0.0);
 var lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
@@ -23,20 +22,17 @@ var ks = vec4( 0.5, 0.5, 0.5, 1.0);
 var shininess = 500.0;
 
 
-
+var eye = vec3(0.0, 0.0, -4.0);
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
 
 var near = 0.1;
 var far = 10;
 var fovy = 45;
+var aspect;
 
-var viewMatrix;
-var translationMatrix, translationMatrix2, translationMatrix3;
-var translationMatrixLoc;
-var viewMatrixLoc;
-var modelMatrixLoc;
-var modelMatrix = [];
+var modelViewMatrix, projectionMatrix;
+var modelViewMatrixLoc, projectionMatrixLoc;
 
 var numTimesToSubdivide = 3;
 
@@ -60,7 +56,7 @@ window.onload = function init()
     // Function to draw terahedron
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
-    var aspect =  canvas.width/canvas.height;
+    aspect =  canvas.width/canvas.height;
 
 
     gl.viewport( 0, 0, canvas.width, canvas.height);
@@ -78,7 +74,7 @@ window.onload = function init()
 
     updateBuffers();
 
-    gl.uniform4fv( gl.getUniformLocation(program,"lightDirection"),flatten(lightDirection) );
+    gl.uniform4fv( gl.getUniformLocation(program,"lightPosition"),flatten(lightPosition) );
 
 
 
@@ -86,21 +82,12 @@ window.onload = function init()
 
     
     // setting up eye 
-    var eye = vec3(-2.0, 2.0, -4.0);
+    eye = vec3(-2.0, 2.0, 4.0);
+    gl.uniform3fv(gl.getUniformLocation(program, "eye"),flatten(normalize(eye)));
 
-    // var pMatrix = ortho(left, right, bottom, ytop, near, far);
-    var pMatrix = perspective(fovy, aspect, near, far);
 
-    translationMatrixLoc = gl.getUniformLocation(program, "translationMatrix");
-    
-
-    viewMatrixLoc = gl.getUniformLocation( program, "viewMatrix" );
-    viewMatrix = lookAt( eye, at, up );
-
-    modelMatrixLoc = gl.getUniformLocation( program, "modelMatrix" );
-
-    var projectionMatrix = gl.getUniformLocation( program, "projectionMatrix" );
-    gl.uniformMatrix4fv( projectionMatrix, false, flatten(pMatrix) );
+    modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
+    projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
 
 
     document.getElementById("incSubButton").addEventListener("click", function () {
@@ -267,16 +254,16 @@ function render()
     var radius = 3.0;
     var eyeX = radius * Math.sin(rotationAngle);
     var eyeZ = radius * Math.cos(rotationAngle);
-    viewMatrix = lookAt(
+    modelViewMatrix = lookAt(
         vec3(eyeX, 0.0, eyeZ),  // Eye position in Cartesian coordinates
         at,
         up
     );
-    gl.uniformMatrix4fv( viewMatrixLoc, false, flatten(viewMatrix));
-    modelMatrix = mat4();
-    gl.uniformMatrix4fv(modelMatrixLoc, false, flatten(modelMatrix));
-    gl.uniformMatrix4fv(translationMatrixLoc, false, flatten(translate(0,0,0)));
-    
+    projectionMatrix = perspective(fovy, aspect, near, far);;
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix) );
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix) );
+
     gl.drawArrays( gl.TRIANGLES, 0, pointsArray.length );
     requestAnimFrame(render);
 
