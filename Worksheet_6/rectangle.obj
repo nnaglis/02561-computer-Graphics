@@ -1,0 +1,11 @@
+# Blender v2.60 (sub 0) OBJ File: ''
+# www.blender.org
+mtllib rectangle.mtl
+o Rectangle
+v -4.000000 -1.000000 -1.000000
+v 4.000000 -1.000000 -1.000000
+v 4.000000 -1.000000 -21.000000
+v -4.000000 -1.000000 -21.000000
+usemtl Material
+f 1 2 3 4
+

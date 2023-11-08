@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+    precision mediump float;
+    uniform vec4 lightPosition;
+    
+    uniform mat4 modelViewMatrix;
+    uniform mat4 projectionMatrix;
+    uniform mat3 normalMatrix;
+    
+    attribute  vec3 vPosition;
+    attribute  vec3 vNormal;
+    attribute  vec4 vColor;
+    
+    varying vec4 fColor;
+    varying vec3 N,L,E,H;
+    
+    void main()
+    {
+        // pos is vertex position in eye coordinates
+    
+        vec3 pos = (modelViewMatrix * vec4(vPosition, 1.0)).xyz;
+    
+        //N = normalize(modelViewMatrix * vec4(vNormal, 1.0)).xyz;
+        N = normalize( normalMatrix*normalize(vNormal.xyz));
+    
+        if(lightPosition.w == 0.0) L = normalize(-(modelViewMatrix*lightPosition).xyz);
+        else L = normalize( (modelViewMatrix*lightPosition).xyz - pos );
+    
+        E = -normalize( pos );
+        H = normalize(L + E);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition, 1.0);
+        fColor = vColor;
+    }
+    </script>
+    
+    <script id="fragment-shader" type="x-shader/x-fragment">
+    
+    precision mediump float;
+    
+    uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+    uniform float shininess;
+    varying vec3 N,L,E,H;
+    varying vec4 fColor;
+    
+    
+    
+    void main()
+    {
+        float Kd = max( dot(L, N), 0.0 );
+        float Ks = pow(max(dot(N, H), 0.0), shininess);
+        vec4 specular = specularProduct;
+        vec4 diffuse = diffuseProduct;
+    
+        // gl_FragColor = (ambientProduct + (diffuse * Kd) + (specular * Ks));
+        //gl_FragColor = diffuse * Kd + specular * Ks;
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        gl_FragColor.a = 1.0;
+    
+    }
+    </script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="../common/OBJParser.js"></script>
+<script type="text/javascript" src="part1.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+
+<br/>
+
+</body>
+</html>
