@@ -76,8 +76,23 @@ window.onload = function init()
     gl.uniform4fv( gl.getUniformLocation(program,"lightDirection"),flatten(lightDirection) );
 
 
-
     
+
+    var myTexels = new Image();
+    myTexels = document.getElementById("earth");
+    myTexels.src = "earth.jpg";
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,gl.UNSIGNED_BYTE, myTexels);
+
+    var texture = gl.createTexture();
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,gl.UNSIGNED_BYTE, myTexels);
+    gl.generateMipmap( gl.TEXTURE_2D );
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+
 
     
     // setting up eye 
@@ -208,7 +223,7 @@ function applyRotation(matrix, angle, axis)
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    rotationAngle += 0.1;
+    rotationAngle += 0.01;
     var radius = 3.0;
     var eyeX = radius * Math.sin(rotationAngle);
     var eyeZ = radius * Math.cos(rotationAngle);

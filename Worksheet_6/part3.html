@@ -15,13 +15,15 @@ uniform vec4 diffuseProduct;
 uniform vec4 lightDirection;
 attribute vec4 vNormal;
 
+varying vec3 N;
 
 
 void main()
 {
     float Kd = max( dot(lightDirection, vNormal), 0.0 );
-    fColor = Kd*diffuseProduct*vColor;
+    fColor = Kd*diffuseProduct;
     fColor.a = 1.0;
+    N = normalize( vNormal.xyz );
 
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
     gl_Position = translationMatrix*gl_Position;
@@ -34,10 +36,17 @@ precision mediump float;
 
 varying vec4 fColor;
 
+uniform sampler2D texture;
+
+varying vec3 N;
+
 void
 main()
 {
-    gl_FragColor = fColor;
+    float v = acos(N.y) / 3.14159265359 ;
+    float u = 1.0 - atan(N.z,N.x) / (2.0 * 3.14159265359);
+    gl_FragColor = texture2D( texture, vec2(u,v))*fColor + vec4(0.4, 0.4, 0.4, 1.0)*texture2D( texture, vec2(u,v));
+    //gl_FragColor = vec4(0.0, u, v, 1.0);
 }
 </script>
 
@@ -46,6 +55,9 @@ main()
 <script type="text/javascript" src="../Common/MV.js"></script>
 <script type="text/javascript" src="part3.js"></script>
 
+
+
+
 <body>
     <div>
         <button  id="incSubButton">Increase subdivision</button>
@@ -53,6 +65,7 @@ main()
     </div>
 <canvas id="gl-canvas" width="512"" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element
+<img id="earth" src="earth.jpg"></img>
 </canvas>
 
 <br/>
