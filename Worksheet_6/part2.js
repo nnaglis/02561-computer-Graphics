@@ -91,6 +91,7 @@ function configureTexture(image) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0,
         gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap( gl.TEXTURE_2D );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
@@ -167,7 +168,72 @@ function init() {
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
 
+
+    document.getElementById("Texture Filtering modes").onclick = function( event) {
+        switch(event.target.index) {
+            //Nearest
+          case 0:
+             gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                 gl.NEAREST);
+             gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
+                  gl.NEAREST );
+             break;
+             // linear
+          case 1:
+             gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                  gl.LINEAR);
+              gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
+                  gl.LINEAR );
+             break;
+             // nearest mipmap nearest
+         case 2:
+              gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                gl.NEAREST_MIPMAP_NEAREST );
+              gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
+                  gl.NEAREST );
+             break;
+             //linear mipmap nearest
+          case 3:
+              gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                  gl.LINEAR_MIPMAP_NEAREST );
+              gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
+                  gl.NEAREST );
+             break;
+
+            // nearest mimap linear
+          case 4:
+                gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                    gl.NEAREST_MIPMAP_LINEAR );
+                gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
+                    gl.LINEAR );
+                 break;
+
+            // linear mipmap linear
+          case 5:
+                gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                    gl.LINEAR_MIPMAP_LINEAR );
+                gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,
+                    gl.LINEAR );
+                 break;
+      };
+    }
+
+    document.getElementById("Texture Wrapping modes").onclick = function( event) {
+        switch(event.target.index) {
+            //repeat
+          case 0:
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+             break;
+             // clamp to edge
+          case 1:
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+             break;
+
+        };
+    }
+
     render();
+
 }
 
 var render = function() {

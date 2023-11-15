@@ -1,0 +1,20 @@
+Explain the effect of the different filtering modes and their influence on
+texture magnification and minification issues.
+
+gl.NEAREST - Nearest neighbor filtering selects texel nearest to the center of the pixel being textured, resulting in jagged lines when magnifying a texture and pixelated texture when minifying a texture.
+gl.LINEAR - Linear filtering interpolates between multiple neighboring texels to obtain a smoother value, resulting in smoother lines when magnifying a texture and still pixelated texture when minifying a texture.
+
+Mipmaps are introduced so that the texture that is projected to a small area has also reduced texel density. The textures of reduced sizes are then used automatically by WebGL.
+Mipmaps are only used for minification
+
+gl.NEAREST_MIPMAP_NEAREST - Nearest neighbor filtering is used to select the mipmap that most closely matches the size of the pixel being textured and then nearest neighbor filtering is used to sample the texture at the corresponding texel.
+    this results in the same looking picture as gl.NEAREST but with less pixelation at a long distance.
+
+gl.LINEAR_MIPMAP_NEAREST - Nearest neighbor filtering is used to select the mipmap that most closely matches the size of the pixel being textured and then linear filtering is used to sample the texture at the corresponding texel.
+    this results in a texture looking smooth far away and at a medium distance, but pixelated up close.
+
+gl.NEAREST_MIPMAP_LINEAR - Linear filtering is used to interpolate between the two mipmaps that most closely match the size of the pixel being textured and then nearest neighbor filtering is used to sample the texture at the corresponding texel.
+    texture is smooth up close and very far away
+
+gl.LINEAR_MIPMAP_LINEAR - Linear filtering is used to interpolate between the two mipmaps that most closely match the size of the pixel being textured and then linear filtering is used to sample the texture at the corresponding texel.
+    texture is smooth throughout the entire rectangle.
