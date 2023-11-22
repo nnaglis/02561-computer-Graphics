@@ -2,6 +2,7 @@
 
 var canvas;
 var gl;
+var program;
 
 var pointsArray = [];
 var colors = [];
@@ -33,6 +34,8 @@ var numTimesToSubdivide = 3;
 
 var maxNumSubdivisions = 10;
 
+var g_tex_ready = 0;
+
 window.onload = function init() {
     /** @type {WebGLRenderingContext} */
     canvas = document.getElementById("gl-canvas");
@@ -63,7 +66,7 @@ window.onload = function init() {
     //
     //  Load shaders and initialize attribute buffers
     //
-    var program = initShaders(gl, "vertex-shader", "fragment-shader");
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
     updateBuffers();
@@ -73,24 +76,7 @@ window.onload = function init() {
         flatten(lightDirection)
     );
 
-    var myTexels = new Image();
-    myTexels = document.getElementById("earth");
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, myTexels);
-
-    var texture = gl.createTexture();
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, myTexels);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    // LINEAR_MIPMAP_NEAREST is used, as it still preserves the sharpness of the texture up close
-    gl.texParameteri(
-        gl.TEXTURE_2D,
-        gl.TEXTURE_MIN_FILTER,
-        gl.LINEAR_MIPMAP_NEAREST
-    );
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-
+    initTexture();
     // setting up eye
     var eye = vec3(-2.0, 2.0, -4.0);
 
@@ -136,9 +122,9 @@ window.onload = function init() {
         gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
-        var vColor = gl.getAttribLocation(program, "vColor");
-        gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(vColor);
+        // var vColor = gl.getAttribLocation(program, "vColor");
+        // gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
+        // gl.enableVertexAttribArray(vColor);
 
         var vBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -164,6 +150,36 @@ window.onload = function init() {
 
     render();
 };
+
+function initTexture ()
+{
+var cubemap = ['textures/cm_left.png',// POSITIVE_X
+    'textures/cm_right.png',  // NEGATIVE X
+    'textures/cm_top.png', // POSITIVE_
+    'textures/cm_bottom.png', // NEGATIVE_Y 
+    'textures/cm_back.png' ,// POSITIVE_Z
+    'textures/cm_front.png']; // NEGATIVE Z
+gl.activeTexture(gl.TEXTURE0);
+var texture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR); 
+gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+for(var i = 0; i < 6; ++i) {
+    var image = document.createElement('img');
+    image.crossorigin = 'anonymous';
+    image.textarget = gl.TEXTURE_CUBE_MAP_POSITIVE_X + i;
+    image.onload = function(event)
+    {
+        var image = event.target;
+        gl.activeTexture(gl.TEXTURE0);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(image.textarget, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+        ++g_tex_ready;
+    };
+image.src = cubemap[i];
+}
+gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
+}
 
 function tetrahedron(a, b, c, d, n) {
     divideTriangle(a, b, c, n);
@@ -218,6 +234,10 @@ function applyRotation(matrix, angle, axis) {
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    if (g_tex_ready < 6) {
+        window.requestAnimationFrame(render);
+        return;
+    }
     rotationAngle += 0.01;
     var radius = 3.0;
     var eyeX = radius * Math.sin(rotationAngle);

@@ -16,6 +16,7 @@ uniform vec4 lightDirection;
 attribute vec4 vNormal;
 
 varying vec3 N;
+varying vec3 R;
 
 
 void main()
@@ -24,6 +25,8 @@ void main()
     fColor = Kd*diffuseProduct;
     fColor.a = 1.0;
     N = normalize( vNormal.xyz );
+    vec3 pos = (viewMatrix*modelMatrix* vPosition).xyz;
+    R = reflect(pos, N);
 
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
     gl_Position = translationMatrix*gl_Position;
@@ -36,17 +39,16 @@ precision mediump float;
 
 varying vec4 fColor;
 
-uniform sampler2D texture;
-
-varying vec3 N;
+varying vec3 R;
+uniform samplerCube texMap;
 
 void
 main()
 {
-    float v = acos(N.y) / 3.14159265359 ;
-    float u = 1.0 - atan(N.z,N.x) / (2.0 * 3.14159265359);
-    gl_FragColor = texture2D( texture, vec2(u,v))*fColor + vec4(0.4, 0.4, 0.4, 1.0)*texture2D( texture, vec2(u,v));
-    //gl_FragColor = vec4(0.0, u, v, 1.0);
+    vec4 texColor = textureCube(texMap, R);
+    gl_FragColor = texColor;
+    //gl_FragColor = texColor * fColor;
+
 }
 </script>
 
