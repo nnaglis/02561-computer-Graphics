@@ -26,7 +26,7 @@ void main()
     fColor.a = 1.0;
     N = normalize( vNormal.xyz );
     vec3 pos = (viewMatrix*modelMatrix* vPosition).xyz;
-    R = reflect(pos, N);
+    R = N;
 
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
     gl_Position = translationMatrix*gl_Position;
