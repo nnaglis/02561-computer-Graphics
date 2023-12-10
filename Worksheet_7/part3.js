@@ -23,7 +23,7 @@ const up = vec3(0.0, 1.0, 0.0);
 
 var near = 0.1;
 var far = 40;
-var fovy = 40;
+var fovy = 80;
 
 var viewMatrix;
 var translationMatrix;
@@ -291,11 +291,12 @@ function render() {
         at,
         up
     );
+    gl.uniform4fv(gl.getUniformLocation(program, "eyePosition"), flatten(vec4(eyeX, 0.0, -eyeZ, 1.0)));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
     gl.uniformMatrix4fv(viewMatrixLoc, false, flatten(viewMatrix));
     modelMatrix = mat4();
     //scale 
-    modelMatrix = mult(modelMatrix, scalem(1.0, 1.0, 1.0));
+    modelMatrix = mult(modelMatrix, scalem(3.0, 3.0, 3.0));
     gl.uniformMatrix4fv(modelMatrixLoc, false, flatten(modelMatrix));
     gl.uniformMatrix4fv(
         translationMatrixLoc,
@@ -304,6 +305,7 @@ function render() {
     );
     gl.uniformMatrix4fv(M_TexLoc, false, flatten(mat4(1)));
     updateBuffers();
+    gl.uniform1i(gl.getUniformLocation(program, "reflective"), true);
     gl.drawArrays(gl.TRIANGLES, 0, pointsArray.length);
 
     // extract rotation matrix from view matrix
@@ -328,7 +330,7 @@ function render() {
     gl.bufferData(gl.ARRAY_BUFFER, flatten(quadNormalsArray), gl.STATIC_DRAW);
 
 
-
+    gl.uniform1i(gl.getUniformLocation(program, "reflective"), false);
     gl.drawArrays(gl.TRIANGLES, 0, quadPointsArray.length);
     
     requestAnimFrame(render);
