@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+varying vec4 fColor;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 translationMatrix;
+uniform mat4 modelMatrix;
+uniform vec4 diffuseProduct;
+
+
+uniform mat4 M_Tex;
+
+uniform vec4 lightDirection;
+attribute vec4 vNormal;
+
+varying vec3 N;
+varying vec3 nR;
+
+
+void main()
+{
+    float Kd = max( dot(lightDirection, vNormal), 0.0 );
+    fColor = Kd*diffuseProduct;
+    fColor.a = 1.0;
+    N = normalize( vNormal.xyz );
+    vec3 pos = (viewMatrix*modelMatrix* vPosition).xyz;
+    //R = reflect(pos, N);
+    // identity matrix 
+    nR = (M_Tex * vPosition).xyz;
+
+
+
+    gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
+    gl_Position = translationMatrix*gl_Position;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec4 fColor;
+
+uniform vec4 eyePosition;
+uniform bool reflective;
+varying vec3 N;
+varying vec3 nR;
+
+uniform samplerCube texMap;
+
+
+void
+main()
+{
+    vec4 texColor;
+    if(reflective){
+        vec3 R = reflect(normalize(-eyePosition.xyz), N);
+        texColor = textureCube(texMap, R);
+    }
+    else{
+        texColor = textureCube(texMap, nR);
+    }
+    gl_FragColor = texColor;
+
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="part3.js"></script>
+
+
+
+
+<body>
+    <div>
+        <button  id="incSubButton">Increase subdivision</button>
+        <button  id="decSubButton">Decrease subdivision</button>
+    </div>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+<br/>
+
+</body>
+</html>
