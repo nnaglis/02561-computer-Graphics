@@ -321,7 +321,7 @@ function render() {
     gl.uniformMatrix4fv(viewMatrixLoc, false, flatten(viewMatrix));
     modelMatrix = mat4();
     //scale 
-    modelMatrix = mult(modelMatrix, scalem(5.0, 5.0, 5.0));
+    modelMatrix = mult(modelMatrix, scalem(3.0, 3.0, 3.0));
     gl.uniformMatrix4fv(modelMatrixLoc, false, flatten(modelMatrix));
     gl.uniformMatrix4fv(
         translationMatrixLoc,
