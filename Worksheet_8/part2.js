@@ -232,20 +232,19 @@ var render = function() {
 
     //change the texture to the red texture
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 1);
+
+    // Model-view matrix for shadow then render
+    var modelViewMatrix2 = mult(modelViewMatrix, translate(lightPosition[0], lightPosition[1],lightPosition[2]));
+    modelViewMatrix2 = mult(modelViewMatrix2, m);
+    modelViewMatrix2 = mult(modelViewMatrix2, translate(-lightPosition[0],-lightPosition[1], -lightPosition[2]));
+    console.log(modelViewMatrix);
+    console.log(m);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(modelViewMatrix2));
+
     gl.drawArrays( gl.TRIANGLES, 6, numVertices );
     gl.drawArrays( gl.TRIANGLES, 12, numVertices );
 
-    //send color and matrix for shadow
-
-
-  // Model-view matrix for shadow then render
-    modelViewMatrix = mult(modelViewMatrix, translate(lightPosition[0], lightPosition[1],lightPosition[2]));
-    modelViewMatrix = mult(modelViewMatrix, m);
-    modelViewMatrix = mult(modelViewMatrix, translate(-lightPosition[0],-lightPosition[1], -lightPosition[2]));
-    console.log(modelViewMatrix);
-    console.log(m);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(modelViewMatrix));
-
     gl.drawArrays( gl.TRIANGLES, 6, numVertices );
     gl.drawArrays( gl.TRIANGLES, 12, numVertices );
 
