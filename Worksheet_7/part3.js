@@ -76,7 +76,7 @@ window.onload = function init() {
     // Function to draw terahedron
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
-    quad( 1,2,3,0);
+    quad( 0,3,2,1);
 
     var aspect = canvas.width / canvas.height;
 
@@ -84,8 +84,8 @@ window.onload = function init() {
     gl.clearColor(0.9, 0.9, 0.9, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
-    // gl.enable(gl.CULL_FACE); // Enable face culling
-    // gl.cullFace(gl.BACK);
+    gl.enable(gl.CULL_FACE); // Enable face culling
+    gl.cullFace(gl.BACK);
 
     //
     //  Load shaders and initialize attribute buffers

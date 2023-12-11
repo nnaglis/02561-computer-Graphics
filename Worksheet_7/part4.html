@@ -4,8 +4,8 @@
 <script id="vertex-shader" type="x-shader/x-vertex">
 
 attribute  vec4 vPosition;
-attribute  vec4 vColor;
 varying vec4 fColor;
+varying vec4 fPosition;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 translationMatrix;
@@ -14,26 +14,42 @@ uniform vec4 diffuseProduct;
 
 
 uniform mat4 M_Tex;
+uniform sampler2D bumpMap;
+
 
 uniform vec4 lightDirection;
 attribute vec4 vNormal;
 
 varying vec3 N;
 varying vec3 nR;
+varying vec3 normalBump;
 
+vec3 rotate_to_normal(vec3 n, vec3 v) {
+    float sgn_nz = sign(n.z + 1.0e-16);
+    float a = -1.0/(1.0 + abs(n.z));
+    float b = n.x*n.y*a;
+    return vec3(1.0 + n.x*n.x*a, b, -sgn_nz*n.x)*v.x
+    + vec3(sgn_nz*b, sgn_nz*(1.0 + n.y*n.y*a), -n.y)*v.y
+    + n*v.z;
+    }
 
 void main()
 {
+    
+
+
     float Kd = max( dot(lightDirection, vNormal), 0.0 );
     fColor = Kd*diffuseProduct;
     fColor.a = 1.0;
+    fPosition = vPosition;
     N = normalize( vNormal.xyz );
     vec3 pos = (viewMatrix*modelMatrix* vPosition).xyz;
-    //R = reflect(pos, N);
     // identity matrix 
     nR = (M_Tex * vPosition).xyz;
-
-
+    float v = acos(vPosition.y) / 3.14159265359 ;
+    float u = 1.0 - atan(vPosition.z,vPosition.x) / (2.0 * 3.14159265359);
+    normalBump = texture2D(bumpMap, vec2(u,v)).xyz* vec3(2) - vec3(1);
+    normalBump = rotate_to_normal(vPosition.xyz, normalBump);
 
     gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
     gl_Position = translationMatrix*gl_Position;
@@ -45,11 +61,12 @@ void main()
 precision mediump float;
 
 varying vec4 fColor;
+varying vec4 fPosition;
 
 uniform vec4 eyePosition;
 uniform bool reflective;
-varying vec3 N;
 varying vec3 nR;
+varying vec3 normalBump;
 
 uniform samplerCube texMap;
 
@@ -59,7 +76,7 @@ main()
 {
     vec4 texColor;
     if(reflective){
-        vec3 R = reflect(normalize(-eyePosition.xyz), N);
+        vec3 R = reflect(normalize(fPosition.xyz - eyePosition.xyz), normalBump);
         texColor = textureCube(texMap, R);
     }
     else{
@@ -73,7 +90,7 @@ main()
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
 <script type="text/javascript" src="../Common/initShaders.js"></script>
 <script type="text/javascript" src="../Common/MV.js"></script>
-<script type="text/javascript" src="part3.js"></script>
+<script type="text/javascript" src="part4.js"></script>
 
 
 

@@ -76,7 +76,7 @@ window.onload = function init() {
     // Function to draw terahedron
     tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
-    quad( 1,2,3,0);
+    quad( 0,3,2,1);
 
     var aspect = canvas.width / canvas.height;
 
@@ -84,8 +84,8 @@ window.onload = function init() {
     gl.clearColor(0.9, 0.9, 0.9, 1.0);
 
     gl.enable(gl.DEPTH_TEST);
-    // gl.enable(gl.CULL_FACE); // Enable face culling
-    // gl.cullFace(gl.BACK);
+    gl.enable(gl.CULL_FACE); // Enable face culling
+    gl.cullFace(gl.BACK);
 
     //
     //  Load shaders and initialize attribute buffers
@@ -111,6 +111,7 @@ window.onload = function init() {
     );
 
     initTexture();
+    initBumpMap();
     // setting up eye
     var eye = vec3(-2.0, 2.0, -4.0);
 
@@ -201,10 +202,34 @@ for(var i = 0; i < 6; ++i) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(image.textarget, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
         ++g_tex_ready;
+        gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
     };
 image.src = cubemap[i];
 }
-gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
+}
+
+function initBumpMap ()
+{
+    var normalMap = 'textures/normalMap.png';
+    var image = document.createElement('img');
+    image.crossOrigin = 'anonymous';
+    image.onload = function(event)
+    {
+        var image = event.target;
+        gl.activeTexture(gl.TEXTURE1);
+        var texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        ++g_tex_ready;
+        gl.uniform1i(gl.getUniformLocation(program, "bumpMap"), 1);
+    };
+    image.src = normalMap;
 }
 
 
@@ -278,7 +303,7 @@ function applyRotation(matrix, angle, axis) {
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (g_tex_ready < 6) {
+    if (g_tex_ready < 7) {
         window.requestAnimationFrame(render);
         return;
     }
@@ -296,7 +321,7 @@ function render() {
     gl.uniformMatrix4fv(viewMatrixLoc, false, flatten(viewMatrix));
     modelMatrix = mat4();
     //scale 
-    modelMatrix = mult(modelMatrix, scalem(3.0, 3.0, 3.0));
+    modelMatrix = mult(modelMatrix, scalem(5.0, 5.0, 5.0));
     gl.uniformMatrix4fv(modelMatrixLoc, false, flatten(modelMatrix));
     gl.uniformMatrix4fv(
         translationMatrixLoc,
