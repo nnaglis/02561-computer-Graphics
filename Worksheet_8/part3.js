@@ -161,7 +161,8 @@ function init() {
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 0.0, 0.0, 0.3, 1.0 );
 
-    // gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LESS);
     // gl.enable(gl.CULL_FACE); // Enable face culling
     // gl.cullFace(gl.BACK);
 
@@ -206,16 +207,17 @@ function init() {
 
     m = mat4();    // Shadow projection matrix initially an identity matrix
     m[3][3] = 0.0;
-    m[3][1] = -1.0/(3.0);
+    m[3][1] = -1.0/(3.0001);
     render();
 }
 
 var render = function() {
-    gl.clear( gl.COLOR_BUFFER_BIT);
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     if(g_tex_ready < 1) {
         requestAnimFrame(render);
         return;
     }
+    gl.depthFunc(gl.LESS);
     theta += 0.01;
     var lightPosition = vec4(Math.sin(theta)*2, 2.0, Math.cos(theta)*2-2, 1.0 );
     // var lightPosition = vec4(0.0, 2.0, -6.0, 1.0 );
@@ -228,22 +230,26 @@ var render = function() {
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
     
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+    // update visibility in fragment shader
+    gl.uniform1f(gl.getUniformLocation(program, "visibility"), 1.0);
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 
     //change the texture to the red texture
     gl.uniform1i(gl.getUniformLocation(program, "texture"), 1);
 
+    gl.depthFunc(gl.GREATER);
+    //update visibility of shadow in fragment shader
+    gl.uniform1f(gl.getUniformLocation(program, "visibility"), 0.0);
     // Model-view matrix for shadow then render
     var modelViewMatrix2 = mult(modelViewMatrix, translate(lightPosition[0], lightPosition[1],lightPosition[2]));
     modelViewMatrix2 = mult(modelViewMatrix2, m);
     modelViewMatrix2 = mult(modelViewMatrix2, translate(-lightPosition[0],-lightPosition[1], -lightPosition[2]));
-    console.log(modelViewMatrix);
-    console.log(m);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(modelViewMatrix2));
-
     gl.drawArrays( gl.TRIANGLES, 6, numVertices );
     gl.drawArrays( gl.TRIANGLES, 12, numVertices );
 
+    gl.depthFunc(gl.LESS);
+    gl.uniform1f(gl.getUniformLocation(program, "visibility"), 1.0);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false,flatten(modelViewMatrix));
     gl.drawArrays( gl.TRIANGLES, 6, numVertices );
     gl.drawArrays( gl.TRIANGLES, 12, numVertices );

@@ -32,11 +32,13 @@ varying vec4 fColor;
 varying  vec2 fTexCoord;
 
 uniform sampler2D texture;
+uniform float visibility;
 
 void
 main()
 {
-    gl_FragColor = fColor*texture2D( texture, fTexCoord );
+    gl_FragColor = visibility*fColor*texture2D( texture, fTexCoord );
+    gl_FragColor.a = 1.0;
 }
 </script>
 
