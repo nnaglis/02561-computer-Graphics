@@ -217,9 +217,10 @@ var render = function() {
         return;
     }
     theta += 0.01;
-    var lightPosition = vec4(Math.sin(theta)*2, 2.0, Math.cos(theta)*2-2, 1.0 );
-    // var lightPosition = vec4(0.0, 2.0, -6.0, 1.0 );
-    // lightPosition = normalize(lightPosition);
+
+    var lightPositionX = Math.sin(theta)*radius+lightCenter[0];
+    var lightPositionZ = Math.cos(theta)*radius+lightCenter[2];
+    var lightPosition = vec3(lightPositionX, 2.0, lightPositionZ);
 
     modelViewMatrix = lookAt(eye, at , up);
     projectionMatrix = perspective(fovy, aspect, near, far);
