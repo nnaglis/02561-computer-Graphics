@@ -7,9 +7,7 @@ var program;
 var numVertices  = 6;
 
 
-var texSize = 64;
-var numRows = 8;
-var numCols = 8;
+var texSize = 1;
 
 //var flag = true;
 
@@ -22,22 +20,12 @@ var  aspect = 1.0;       // Viewport aspect ratio
 
 
 
-var texture;
+var texture0;
+var texture1;
+
+var g_tex_ready = 0;
 
 // Create a checkerboard pattern using floats
-
-
-var image1 = new Uint8Array(4*texSize*texSize);
-for(var i = 0; i < texSize; ++i) 
-  for(var j = 0; j < texSize; ++j)
-  {
-  var patchx = Math.floor(i/(texSize/numRows));
-  var patchy = Math.floor(j/(texSize/numCols));
-  var c = (patchx%2 !== patchy%2 ? 255 : 0);
-  var idx = 4*(i*texSize + j);
-  image1[idx] = image1[idx + 1] = image1[idx + 2] = c;
-  image1[idx + 3] = 255;
-}
 
 
 
@@ -48,21 +36,34 @@ var texCoordsArray = [];
 
 //Create texture coordinates (−1.5, 0.0), (2.5, 0.0), (2.5, 10.0),(−1.5, 10.0)
 var texCoord = [
-    vec2( -1.5, 0.0 ),
-    vec2( 2.5, 0.0 ),
-    vec2( 2.5, 10.0 ),
-    vec2( -1.5, 10.0 )
+    vec2( 0.0, 1.0 ),
+    vec2( 0.0, 0.0 ),
+    vec2( 1.0, 0.0 ),
+    vec2( 1.0, 1.0 )
 ];
 
 
 
-// rectangle with vertices (−4,−1,−1), (4,−1,−1), (4,−1,−21),(−4,−1,−21).
 var vertices = [
-    vec4( -4.0, -1.0, -1.0, 1.0 ),
-    vec4( -4.0, -1.0, -21.0, 1.0 ),
-    vec4( 4.0, -1.0, -21.0, 1.0 ),
-    vec4( 4.0, -1.0, -1.0, 1.0 )
+    vec4( -2.0, -1.0, -1.0, 1.0 ),
+    vec4( -2.0, -1.0, -5.0, 1.0 ),
+    vec4( 2.0, -1.0, -5.0, 1.0 ),
+    vec4( 2.0, -1.0, -1.0, 1.0 ),
+
+    vec4( 0.25, -0.5, -1.25, 1.0),
+    vec4( 0.25, -0.5, -1.75, 1.0),
+    vec4( 0.75, -0.5, -1.75, 1.0),
+    vec4( 0.75, -0.5, -1.25, 1.0),
+
+    vec4( -1.0, 0.0, -2.5, 1.0),
+    vec4( -1.0, 0.0, -3.0, 1.0),
+    vec4( -1.0, -1.0, -3.0, 1.0),
+    vec4( -1.0, -1.0, -2.5, 1.0),
+
+    
+    
 ];
+
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
@@ -83,14 +84,36 @@ var vertexColors = [
 ];
 window.onload = init;
 
+function initTexture0 ()
+{
+    var normalMap = 'textures/xamp23.png';
+    var image = document.createElement('img');
+    image.crossOrigin = 'anonymous';
+    image.onload = function(event)
+    {
+        var image = event.target;
+        gl.activeTexture(gl.TEXTURE0);
+        texture0 = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture0);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        ++g_tex_ready;
+        // gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+    };
+    image.src = normalMap;
+}
 
-
-function configureTexture(image) {
-    texture = gl.createTexture();
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE, image);
+function initTexture1() {
+    texture1 = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE1);
+    // gl.uniform1i(gl.getUniformLocation(program, "texture"), 1);
+    gl.bindTexture(gl.TEXTURE_2D, texture1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 0]));
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
@@ -99,27 +122,27 @@ function configureTexture(image) {
 function quad(a, b, c, d) {
 
      pointsArray.push(vertices[a]);
-     colorsArray.push(vertexColors[a]);
+     colorsArray.push(vertexColors[1]);
      texCoordsArray.push(texCoord[0]);
 
      pointsArray.push(vertices[b]);
-     colorsArray.push(vertexColors[a]);
+     colorsArray.push(vertexColors[1]);
      texCoordsArray.push(texCoord[1]);
 
      pointsArray.push(vertices[c]);
-     colorsArray.push(vertexColors[a]);
+     colorsArray.push(vertexColors[1]);
      texCoordsArray.push(texCoord[2]);
 
      pointsArray.push(vertices[a]);
-     colorsArray.push(vertexColors[a]);
+     colorsArray.push(vertexColors[1]);
      texCoordsArray.push(texCoord[0]);
 
      pointsArray.push(vertices[c]);
-     colorsArray.push(vertexColors[a]);
+     colorsArray.push(vertexColors[1]);
      texCoordsArray.push(texCoord[2]);
 
      pointsArray.push(vertices[d]);
-     colorsArray.push(vertexColors[a]);
+     colorsArray.push(vertexColors[1]);
      texCoordsArray.push(texCoord[3]);
 }
 
@@ -133,6 +156,10 @@ function init() {
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 0.0, 0.0, 0.3, 1.0 );
 
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE); // Enable face culling
+    gl.cullFace(gl.BACK);
+
     //
     //  Load shaders and initialize attribute buffers
     //
@@ -140,6 +167,9 @@ function init() {
     gl.useProgram( program );
 
     quad( 1, 0, 3, 2 );
+    quad( 5, 4, 7, 6 );
+    quad( 9, 8, 11, 10 );
+
 
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer);
@@ -162,7 +192,9 @@ function init() {
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vTexCoord);
 
-    configureTexture(image1);
+    initTexture0();
+    initTexture1();
+
 
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
@@ -172,6 +204,10 @@ function init() {
 
 var render = function() {
     gl.clear( gl.COLOR_BUFFER_BIT);
+    if(g_tex_ready < 1) {
+        requestAnimFrame(render);
+        return;
+    }
 
 
     modelViewMatrix = lookAt(eye, at , up);
@@ -179,6 +215,13 @@ var render = function() {
 
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
+    
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+
+    //change the texture to the red texture
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 1);
+    gl.drawArrays( gl.TRIANGLES, 6, numVertices );
+    gl.drawArrays( gl.TRIANGLES, 12, numVertices );
     requestAnimFrame(render);
 }
