@@ -163,6 +163,8 @@ function init() {
 
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LESS);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     // gl.enable(gl.CULL_FACE); // Enable face culling
     // gl.cullFace(gl.BACK);
 

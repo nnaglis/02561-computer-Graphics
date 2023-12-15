@@ -37,8 +37,10 @@ uniform float visibility;
 void
 main()
 {
-    gl_FragColor = visibility*fColor*texture2D( texture, fTexCoord );
+    gl_FragColor = visibility*texture2D( texture, fTexCoord );
     gl_FragColor.a = 1.0;
+    if (visibility == 0.0)
+        gl_FragColor.a = 0.88;
 }
 </script>
 
