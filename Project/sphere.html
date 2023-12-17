@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+varying vec4 fColor;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 translationMatrix;
+uniform mat4 modelMatrix;
+uniform vec4 diffuseProduct;
+
+uniform vec4 lightDirection;
+attribute vec4 vNormal;
+
+
+varying vec3 N;
+
+
+void main()
+{
+    float Kd = max( dot(lightDirection, vNormal), 0.0 );
+    fColor = Kd*diffuseProduct;
+    fColor.a = 1.0;
+    N = normalize( vNormal.xyz );
+
+    gl_Position = projectionMatrix*viewMatrix*modelMatrix*vPosition;
+    gl_Position = translationMatrix*gl_Position;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec4 fColor;
+
+uniform sampler2D texture;
+
+varying vec3 N;
+
+uniform float layer;
+uniform float threshhold;
+
+
+void
+main()
+{
+    vec4 ambientProduct = vec4(0.4, 0.4, 0.4, 1.0);
+    float v = acos(N.y) / 3.14159265359 ;
+    float u = 1.0 - atan(N.z,N.x) / (2.0 * 3.14159265359);
+    vec4 texColor = texture2D( texture, vec2(u,v));
+    gl_FragColor = (texColor*fColor + ambientProduct*texColor) * layer;
+    float luminance = 0.2126 * texColor.x + 0.7152 * texColor.y + 0.0722 * texColor.z;
+    if (luminance < threshhold)
+    {
+       gl_FragColor.a = 0.0;
+    }
+    else
+    {
+        gl_FragColor.a = 1.0;
+    }
+    gl_FragColor = vec4(fColor.x, gl_FragColor.y, fColor.z, gl_FragColor.a);
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="load_raw.js"></script>
+<script type="text/javascript" src="sphere.js"></script>
+
+
+
+
+<body>
+    <div>
+        <button  id="incSubButton">Increase subdivision</button>
+        <button  id="decSubButton">Decrease subdivision</button>
+        <!-- slider to control layer count -->
+        <label for="variableSlider">Layer Count</label>
+        <input type="range" min="1" max="100" step="1" value="10" id="layerSlider" oninput="updateLayerCount(this.value)">
+        <label for="variableSlider">Distance between Layers</label>
+        <input type="range" min="0" max="0.02" step="0.001" value="0.005" id="layerRadius" oninput="updateLayerRadius(this.value)">
+    </div>
+<canvas id="gl-canvas" width="512"" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+s</canvas>
+
+<br/>
+
+</body>
+</html>
