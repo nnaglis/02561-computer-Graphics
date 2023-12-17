@@ -94,18 +94,6 @@ window.onload = function init()
 
     gl.uniform4fv( gl.getUniformLocation(program,"lightDirection"),flatten(lightDirection) );
 
-    
-
-    //  // Create a new RGrid object
-    // var grid = new RGrid(512, 512, 4);
-
-    // // Load data from a raw file into the grid
-    // gl.activeTexture(gl.TEXTURE0);
-    // // load_raw('Teddybear.raw', grid);
-    
-    // load_raw_to_gl_vtex(gl, 'Teddybear.raw', grid);
-    // gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
-
     function generateRandomNoise(width, height, minValue, maxValue) {
         var noiseArray = new Array(width * height);
     
@@ -117,25 +105,6 @@ window.onload = function init()
         return noiseArray;
     }
 
-    function filterNoiseArray(noiseArray, threshold) {
-        for (var i = 0; i < noiseArray.length; i++) {
-            if (noiseArray[i] < threshold) {
-                noiseArray[i] = 0;
-            }
-        }
-    }
-
-    function filterNoiseArray(noiseArray, threshold) {
-        var filteredArray = noiseArray.slice(); // Create a copy of the original array
-    
-        for (var i = 0; i < filteredArray.length; i++) {
-            if (filteredArray[i] < threshold) {
-                filteredArray[i] = 0;
-            }
-        }
-    
-        return filteredArray;
-    }
          
         // Example usage
         var width = 512;
@@ -155,43 +124,6 @@ window.onload = function init()
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     var typedRandomNoise = new Uint8Array(randomNoise); // Convert to Uint8Array
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, width, height, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, typedRandomNoise);
-
-    //send texture to shader
-
-    // console.log(grid.data);
-    // console.log(grid.data[10]);
-    // gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
-    
-
-    // var myTexels = new Image();
-    // myTexels = document.getElementById("earth");
-    // console.log(myTexels);
-    // var myTexels = grid.data;
-    // // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,gl.UNSIGNED_BYTE, myTexels);
-    // var texture = gl.createTexture();
-    // gl.bindTexture(gl.TEXTURE_2D, texture);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, grid.x_dim, grid.y_dim * grid.z_dim, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, grid.data);
-
-
-
-    // var texture = gl.createTexture();
-    // gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
-    // gl.bindTexture(gl.TEXTURE_2D, texture);
-    // gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, grid.x_dim, grid.y_dim * grid.z_dim, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE, grid.data);
-
-    // // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,gl.UNSIGNED_BYTE, myTexels);
-    // // gl.generateMipmap( gl.TEXTURE_2D );
-    // // LINEAR_MIPMAP_NEAREST is used, as it still preserves the sharpness of the texture up close
-    // gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-    // gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-
-
-
     
     // setting up eye 
     var eye = vec3(-2.0, 2.0, -4.0);
@@ -313,22 +245,13 @@ function render()
         var layerThreshold = i*(1.0/layerCount);
         gl.uniform1f(gl.getUniformLocation(program, "threshhold"), layerThreshold);
         gl.uniform1f(gl.getUniformLocation(program, "layer"), (i/layerCount));
-        // gl.uniform1f(gl.getUniformLocation(program, "layer"), (i/layerCount));
         // replace points array with the new layer
-        // console.log(pointsArray2);
         pointsArray = increaseSphereRadius(layerRadius, i, pointsArray2)
-        // console.log(pointsArray);
         updateBuffers();
         gl.drawArrays(gl.TRIANGLES, 0, pointsArray.length);
     }
     // reset points array to original
     pointsArray = pointsArray2.slice();
-
-    
-    // modelMatrix = scalem(1.01, 1.01, 1.01);
-    // gl.uniformMatrix4fv(modelMatrixLoc, false, flatten(modelMatrix));
-    // gl.drawArrays( gl.TRIANGLES, 0, pointsArray.length );
-
 
     requestAnimFrame(render);
 
@@ -356,13 +279,6 @@ function increaseSphereRadius(layerRadius, layerCount, points)
 }
 
 function updateBuffers() {
-    // var cBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
-
-    // var vColor = gl.getAttribLocation(program, "vColor");
-    // gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
-    // gl.enableVertexAttribArray(vColor);
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
