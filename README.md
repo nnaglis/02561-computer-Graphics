@@ -5,7 +5,7 @@ This repository contains the code for the course 02561 Computer Graphics at the 
 ## Technologies Used
  - WebGL
  - GLSL (for the shaders)
- - JavaScript (for the logic)
+ - JavaScript
  - HTML (for the UI)
 
 ## Course Objectives
